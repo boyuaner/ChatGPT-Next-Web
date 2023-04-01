@@ -3,6 +3,8 @@
 import { useState, useRef, useEffect, useLayoutEffect } from "react";
 import { useDebouncedCallback } from "use-debounce";
 
+import fetch from "node-fetch";
+
 import { IconButton } from "./button";
 import styles from "./home.module.scss";
 
@@ -194,6 +196,16 @@ export function Chat(props: {
   const [isLoading, setIsLoading] = useState(false);
   const { submitKey, shouldSubmit } = useSubmitHandler();
 
+  const [tokenInput, setTokenInput] = useState("");
+  const [isLogin, setIsLogin] = useState(false);
+  useEffect(() => {
+    const loginItem = localStorage.getItem("isLogin") === "true" ? true : false;
+    if (!loginItem) {
+      showLogin();
+    }
+    setIsLogin(loginItem);
+  }, []);
+
   // prompt hints
   const promptStore = usePromptStore();
   const [promptHints, setPromptHints] = useState<Prompt[]>([]);
@@ -239,8 +251,58 @@ export function Chat(props: {
     }
   };
 
+  const login = async (model: any) => {
+    const token = document.getElementById("token").value;
+    try {
+      console.log(token);
+      // const raw = await (await fetch("")).json();
+      setIsLogin(true);
+      // localStorage.setItem("isLogin", "true");
+      // localStorage.setItem("token", "true");
+      model.closeModal();
+      alert("验证成功");
+    } catch (error) {
+      alert("token 是错误的或者无效的，请联系管理员", error);
+      setIsLogin(false);
+      // localStorage.setItem("isLogin", "false");
+    }
+  }
+
+  const showLogin = () => {
+    const m = showModal({
+      title: "验证试用资格",
+      children: (
+        // <input id="token" value={tokenInput}
+        //   onChange={(e) => setTokenInput(e.target.value)}
+        // />
+        <textarea
+          id="token"
+          className={styles["chat-input"]}
+          placeholder="输入试用码"
+          rows={1}
+          // value={tokenInput}
+          // onChange={(e) => setTokenInput(e.target.value)}
+        />
+      ),
+      actions: [
+        <IconButton
+          key="login"
+          // icon={<CopyIcon />}
+          bordered
+          text="登陆"
+          onClick={() => login(m)}
+        />
+      ],
+    });
+  }
+
   // submit user input
   const onUserSubmit = () => {
+    if (!isLogin) {
+      showLogin();
+      console.error("未登录！");
+      return;
+    }
     if (userInput.length <= 0) return;
     setIsLoading(true);
     chatStore.onUserInput(userInput).then(() => setIsLoading(false));
@@ -539,7 +601,7 @@ function exportMessages(messages: Message[], topic: string) {
       .join("\n\n");
   const filename = `${topic}.md`;
 
-  showModal({
+  const m = showModal({
     title: Locale.Export.Title,
     children: (
       <div className="markdown-body">
