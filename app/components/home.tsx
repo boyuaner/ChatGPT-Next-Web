@@ -21,6 +21,7 @@ import LoadingIcon from "../icons/three-dots.svg";
 import MenuIcon from "../icons/menu.svg";
 import CloseIcon from "../icons/close.svg";
 import CopyIcon from "../icons/copy.svg";
+import KeyIcon from "../icons/key.svg";
 import DownloadIcon from "../icons/download.svg";
 
 import { Message, SubmitKey, useChatStore, ChatSession } from "../store";
@@ -275,21 +276,30 @@ export function Chat(props: {
         // <input id="token" value={tokenInput}
         //   onChange={(e) => setTokenInput(e.target.value)}
         // />
-        <textarea
+        <div className="markdown-body">
+          <textarea
           id="token"
-          className={styles["chat-input"]}
+          style={{
+            width: "100%",
+            height: "30px",
+            padding: "10px 0 0 10px",
+            border: "1px solid #eee",
+            borderRadius: "10px",
+            marginRight: "20px"
+          }}
           placeholder="输入试用码"
           rows={1}
           // value={tokenInput}
           // onChange={(e) => setTokenInput(e.target.value)}
         />
+        </div>
       ),
       actions: [
         <IconButton
           key="login"
-          // icon={<CopyIcon />}
+          icon={<KeyIcon />}
           bordered
-          text="登陆"
+          text="验证"
           onClick={() => login(m)}
         />
       ],
